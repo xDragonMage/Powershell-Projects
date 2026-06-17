@@ -1,0 +1,31 @@
+Function Get-WordCount() {
+    <#
+    Description: This program counts how many times each word appears in the inputted sentence
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [string]$Phrase
+    )
+
+    # Converts words to lowercase
+    $lower = $Phrase.ToLower()
+
+    # Splits phrase into words by letters, numbers, and apostrophes in words, then removes excess quotes
+    $words = $lower -split "[^a-z0-9']" | foreach-object { $_.Trim("'") } | where-object {$_}
+
+    # Initialize dictionary to count occurrences
+    $count = @{}
+
+    # Counts how many times each words appears
+    foreach ($word in $words){
+        if ($count.ContainsKey($word)){
+            $count[$word]++
+        } else {
+            $count[$word] = 1
+        }
+    }
+
+    return $count
+
+}
