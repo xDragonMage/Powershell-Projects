@@ -1,2 +1,1 @@
-# Powershell-Projects
-Miscellaneous Powershell programs
+A compilation of Powershell projects I've written. Unauthorized use is prohibited.
