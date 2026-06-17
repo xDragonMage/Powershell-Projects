@@ -1,0 +1,68 @@
+Function Invoke-SwiftScheduling() {
+    <#
+    Description: This program converts delivery descriptions to dates based on meeting time
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [datetime]$MeetingStart,
+        [string]$Description
+    )
+
+    # Checks description to determine how to convert to date
+    switch -Regex ($Description){
+	# Adds 2 hours
+        "NOW" {
+            $MeetingStart.AddHours(2)
+        }
+
+	# If before 13:00, then same day at 17:00 else next day at 13:00
+        "ASAP"{
+            if ($MeetingStart.Hour -lt 13){
+                $MeetingStart.Date.AddHours(17)
+            } else {
+                $MeetingStart.Date.AddDays(1).AddHours(13)
+            }
+        }
+
+	# If before Thursday, then same week Friday at 17:00, else Sunday at 20:00
+        "EOW"{
+            if ($MeetingStart.DayOfWeek -le "Wednesday"){
+                $MeetingStart.Date.AddDays("Friday" - $MeetingStart.DayOfWeek).AddHours(17)
+            } else {
+                $MeetingStart.Date.AddDays("Sunday" - $MeetingStart.DayOfWeek + 7).AddHours(20)
+            }
+        }
+	
+	# If after meeting month, then next year, then at 8:00 on the first workday of that year's month
+        "([1-9]|1[0-2])M"{
+            if ($MeetingStart.Month -ge [int]$Matches[1]){
+                $nextYear = 1
+            } else {
+                $nextYear = 0
+            }
+            $delivery = [datetime]::new($MeetingStart.Year + $nextYear, [int]$Matches[1], 1, 8, 0, 0)
+            if ($delivery.DayOfWeek -in "Sunday", "Saturday"){
+                $delivery.AddDays("Monday" - $delivery.DayOfWeek + 7)
+            } else {
+                $delivery
+            }
+        }
+
+	# If after meeting quarter, then next year, then at 8:00 on the last workday of that year's quarter
+        "Q([1-4])"{
+            $month = 3 * [int]$Matches[1]
+            if ($MeetingStart.Month -ge $month){
+                $nextYear = 1
+            } else{
+                $nextYear = 0
+            }
+            $delivery = [datetime]::new($MeetingStart.Year + $nextYear, $month, 1, 8, 0, 0).AddMonths(1).AddDays(-1)
+            if ($delivery.DayOfWeek -in "Sunday", "Saturday"){
+                $delivery.AddDays(-($delivery.DayOfWeek - "Friday"))
+            } else{
+                $delivery
+            }
+        }   
+    }
+}
