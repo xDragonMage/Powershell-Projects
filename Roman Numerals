@@ -1,0 +1,46 @@
+Function Get-RomanNumerals() {
+    <#
+    Description: This program converts a number from 1-3999 into a roman numeral
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [int]$Number
+    )
+
+    # Checks if number is in range
+    if ($Number -lt 1 -or $Number -gt 3999){
+        throw "Number has to be positive integer in range of 1-3999."
+    }
+
+    # Sets up numerals with their value
+    $numerals = [ordered]@{
+        M = 1000
+        CM = 900
+        D = 500
+        CD = 400
+        C = 100
+        XC = 90
+        L = 50
+        XL = 40
+        X = 10
+        IX = 9
+        V = 5
+        IV = 4
+        I = 1
+    }
+
+    $numeral = ""
+
+    # Loops through each numeral
+    foreach ($n in $numerals.keys){
+    
+        # If numeral value is greater or equal to number, adds symbol to $numeral and subtracts its value
+        while ($Number -ge $numerals.$n){
+            $Number -= $numerals.$n
+            $numeral += $n
+        }
+    }
+
+    return $numeral
+}
