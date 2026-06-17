@@ -1,0 +1,20 @@
+Function Test-MatchingBrackets() {
+    <#
+    Description: This program checks if all brackets are properly nested and closed
+    #>
+    [CmdletBinding()]
+    Param(
+        [string]$Text
+    )
+
+    # Converts input into only brackets
+    $bracket = $Text -replace "[^\[\]{}()]", ""
+    
+    # Checks if bracket pair exists and removes it
+    while ($bracket -match "\[\]|\{\}|\(\)"){
+        $bracket = $bracket -replace "\[\]|\{\}|\(\)", ""
+    }
+
+    # If there are any leftover brackets it returns false
+    return -not $bracket
+}
